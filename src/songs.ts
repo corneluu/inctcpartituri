@@ -13,11 +13,12 @@ export interface Song {
 
 export const songs: Song[] = [
   {
-    id: 'jesus-christ',
+    id: 'cantare-1',
     title: 'Jesus Christ, You Are My Life',
     composer: 'Marco Frisina',
     lang: 'IT',
     hasScore: true,
+    audioExt: 'wav',
     voices: ['soprano', 'alto', 'tenor', 'bass']
   },
   {

@@ -26,5 +26,3 @@ dist-ssr
 # Securitate și date mari
 .env
 .env.*
-public/audio/
-public/pdfs/
