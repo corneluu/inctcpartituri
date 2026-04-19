@@ -105,6 +105,7 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const fullUrl = assetUrl(path);
+  const ext = path.split('.').pop() ?? 'mp3';
 
   return (
     <div className="flex flex-row items-center gap-3 w-full h-[36px] bg-[var(--bg)] border border-[var(--track)] rounded-full px-2 mt-4 shadow-sm">
@@ -138,8 +139,8 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
       <div className="flex flex-row items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1 mr-1">
         <button 
           onClick={() => {
-            onDownload(fullUrl, `${songId}-${voice}.mp3`);
-            onTelemetry("💾 Descărcare Audio", `MP3 - ${voice}`);
+            onDownload(fullUrl, `${songId}-${voice}.${ext}`);
+            onTelemetry("💾 Descărcare Audio", `${ext.toUpperCase()} - ${voice}`);
           }} 
           className="flex items-center justify-center sm:px-2.5 sm:py-1 rounded max-sm:p-1 max-sm:text-[var(--muted)] max-sm:hover:text-[var(--text)] sm:bg-[var(--track)] sm:text-[var(--text)] sm:hover:bg-[var(--text)] sm:hover:text-[var(--bg)] transition-all font-medium"
           title="Descarcă MP3"
@@ -220,7 +221,7 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
         <AudioPlayer
           songId={song.id}
           voice={activeVoice}
-          path={`audio/${song.id}/${activeVoice}.mp3`}
+          path={`audio/${song.id}/${activeVoice}.${song.audioExt ?? 'mp3'}`}
           playingId={playingId}
           onPlay={onPlay}
           onDownload={handleDownloadMp3}

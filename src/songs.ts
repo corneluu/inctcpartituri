@@ -8,6 +8,7 @@ export interface Song {
   lang: Lang;
   voices: Voice[];
   hasScore: boolean;
+  audioExt?: string; // optional, defaults to 'mp3'. Use 'wav', 'ogg', 'aac', etc.
 }
 
 export const songs: Song[] = [
