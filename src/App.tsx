@@ -68,9 +68,10 @@ interface PlayerProps {
   onDownload: (path: string, filename: string) => void;
   onShare: (songId: string, voice: Voice) => void;
   onTelemetry: (action: string, type: string) => void;
+  t: (key: any) => string;
 }
 
-function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onShare, onTelemetry }: PlayerProps) {
+function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onShare, onTelemetry, t }: PlayerProps) {
   const audioId = `${songId}-${voice}`;
   const isPlaying = playingId === audioId;
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -144,10 +145,10 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
             onTelemetry("💾 Descărcare Audio", `${ext.toUpperCase()} - ${voice}`);
           }} 
           className="flex items-center justify-center sm:px-2.5 sm:py-1 rounded max-sm:p-1 max-sm:text-[var(--muted)] max-sm:hover:text-[var(--text)] sm:bg-[var(--track)] sm:text-[var(--text)] sm:hover:bg-[var(--text)] sm:hover:text-[var(--bg)] transition-all font-medium"
-          title="Descarcă MP3"
+          title={t('download')}
         >
           <Download size={14} className="sm:mr-1.5" />
-          <span className="hidden sm:inline text-[11px] uppercase tracking-wide">Descarcă</span>
+          <span className="hidden sm:inline text-[11px] uppercase tracking-wide">{t('download')}</span>
         </button>
         <button onClick={() => { onShare(songId, voice); onTelemetry("🔗 Distribuire", `Link Audio (${voice})`); }} className="p-1.5 sm:p-2 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--track)] rounded-full transition-all">
           <Share2 size={14} />
@@ -228,6 +229,7 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
           onDownload={handleDownloadMp3}
           onShare={onShare}
           onTelemetry={(action, type) => onTelemetry(action, song.title, type)}
+          t={t}
         />
       </div>
 
@@ -494,8 +496,8 @@ export default function App() {
         className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[var(--text)] text-[var(--bg)] p-3.5 rounded-full shadow-lg hover:scale-110 transition-all duration-300 ${
           showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
-        title="Mergi sus"
-        aria-label="Înapoi sus"
+        title={t('backToTop')}
+        aria-label={t('backToTop')}
       >
         <ChevronUp size={24} />
       </button>
@@ -511,17 +513,15 @@ export default function App() {
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50 dark:ring-red-900/10">
                 <AlertCircle size={32} className="text-red-600 dark:text-red-500" />
               </div>
-              <h3 className="text-[19px] font-bold text-[var(--text)] mb-3 leading-tight">Nu ești conectat la internet!</h3>
+              <h3 className="text-[19px] font-bold text-[var(--text)] mb-3 leading-tight">{t('offlineTitle')}</h3>
               <p className="text-[14px] text-[var(--muted)] mb-6 leading-relaxed">
-                Aplicația se pare că nu are conexiune la internet sau rețeaua WiFi blochează complet accesul la platformă.
-                <br/><br/>
-                <strong>Îți recomandăm să folosești datele mobile (4G/5G)</strong> pentru a accesa partiturile și resursele audio.
+                {t('offlineDesc')}
               </p>
               <button 
                 onClick={() => setShowNetworkModal(false)}
                 className="w-full py-3 rounded-xl bg-[var(--text)] hover:opacity-90 text-[var(--bg)] font-bold text-[15px] transition-all shadow-md active:scale-[0.98]"
               >
-                Am înțeles
+                {t('offlineConfirm')}
               </button>
             </div>
           </div>
