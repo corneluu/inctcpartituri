@@ -23,9 +23,9 @@ function normalizeText(text: string) {
 function isFuzzyMatch(query: string, text: string) {
   const normQuery = normalizeText(query).replace(/\s+/g, '');
   const normText = normalizeText(text);
-  
+
   if (!normQuery) return true;
-  
+
   let i = 0, j = 0;
   while (i < normQuery.length && j < normText.length) {
     if (normQuery[i] === normText[j]) { i++; }
@@ -75,24 +75,24 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
   const audioId = `${songId}-${voice}`;
   const isPlaying = playingId === audioId;
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const [currentTime, setCT] = useState(0);
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) Object.assign(audio.play(), { catch: () => {} });
+    if (isPlaying) Object.assign(audio.play(), { catch: () => { } });
     else audio.pause();
   }, [isPlaying, path]);
 
-  const togglePlay = () => { 
-    if (isPlaying) { 
-      onPlay(''); 
-    } else { 
-      onPlay(audioId); 
+  const togglePlay = () => {
+    if (isPlaying) {
+      onPlay('');
+    } else {
+      onPlay(audioId);
       onTelemetry("▶️ Redare Audio", `MP3 - ${voice}`);
-    } 
+    }
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -119,8 +119,8 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
         onDurationChange={(e) => setDuration(e.currentTarget.duration)}
         onEnded={() => { setCT(0); onPlay(''); }}
       />
-      
-      <button 
+
+      <button
         onClick={togglePlay}
         className="flex-shrink-0 flex items-center justify-center rounded-full bg-[var(--accent)] text-[#0a0f0c] dark:text-[#0a0f0c] w-[26px] h-[26px] shadow-sm hover:opacity-90 transition-opacity"
       >
@@ -139,11 +139,11 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
       </div>
 
       <div className="flex flex-row items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1 mr-1">
-        <button 
+        <button
           onClick={() => {
             onDownload(fullUrl, `${songId}-${voice}.${ext}`);
             onTelemetry("💾 Descărcare Audio", `${ext.toUpperCase()} - ${voice}`);
-          }} 
+          }}
           className="flex items-center justify-center sm:px-2.5 sm:py-1 rounded max-sm:p-1 max-sm:text-[var(--muted)] max-sm:hover:text-[var(--text)] sm:bg-[var(--track)] sm:text-[var(--text)] sm:hover:bg-[var(--text)] sm:hover:text-[var(--bg)] transition-all font-medium"
           title={t('download')}
         >
@@ -185,10 +185,9 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
   };
 
   return (
-    <div 
-      className={`py-5 border-b border-[var(--track)] last:border-0 transition-colors duration-1000 p-2 -mx-2 rounded-xl ${
-        isHighlighted ? 'bg-[var(--highlight)]' : 'bg-transparent'
-      }`} 
+    <div
+      className={`py-5 border-b border-[var(--track)] last:border-0 transition-colors duration-1000 p-2 -mx-2 rounded-xl ${isHighlighted ? 'bg-[var(--highlight)]' : 'bg-transparent'
+        }`}
       id={`song-${song.id}`}
     >
       {/* Title & Composer exactly like the image */}
@@ -206,19 +205,30 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
             <button
               key={v}
               onClick={() => setActiveVoice(v)}
-              className={`px-4 py-1.5 rounded-lg text-[13px] font-semibold transition-all border ${
-                isActive 
-                  ? 'bg-[var(--text)] text-[var(--bg)] border-[var(--text)] shadow-sm' 
-                  : 'bg-[var(--card)] text-[var(--text)] border-[var(--track)] hover:border-[var(--muted)]'
-              }`}
+              className={`px-4 py-1.5 rounded-lg text-[13px] font-semibold transition-all border ${isActive
+                ? 'bg-[var(--text)] text-[var(--bg)] border-[var(--text)] shadow-sm'
+                : 'bg-[var(--card)] text-[var(--text)] border-[var(--track)] hover:border-[var(--muted)]'
+                }`}
             >
               {t(v)}
             </button>
           );
         })}
+        {song.youtubeUrl && (
+          <a
+            href={song.youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all border bg-[#FF0000] text-white border-[#FF0000] hover:bg-red-700 shadow-sm"
+            onClick={() => onTelemetry("▶️ Redare YouTube", song.title, "Video")}
+            title={t('youtube')}
+          >
+            <Play size={16} fill="currentColor" />
+            {t('youtube')}
+          </a>
+        )}
       </div>
 
-      {/* Single Audio Player */}
       <div className="px-2 w-full">
         <AudioPlayer
           songId={song.id}
@@ -226,7 +236,7 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
           path={`audio/${song.id}/${activeVoice}.${song.audioExt ?? 'mp3'}`}
           playingId={playingId}
           onPlay={onPlay}
-          onDownload={handleDownloadMp3}
+          onDownload={(url) => handleDownloadMp3(url, `${song.title} - ${t(activeVoice)}.${song.audioExt ?? 'mp3'}`)}
           onShare={onShare}
           onTelemetry={(action, type) => onTelemetry(action, song.title, type)}
           t={t}
@@ -236,7 +246,7 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
       {/* Partitură Button (Full width like image) */}
       <div className="px-2 mt-4">
         {song.hasScore && (
-          <button 
+          <button
             onClick={() => {
               onOpenPdf(song.id);
               onTelemetry("📂 Fișier Deschis", song.title, "PDF");
@@ -256,7 +266,7 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
 export default function App() {
   const { lang, setLang, t } = useLang();
   const { theme, toggleTheme } = useDarkMode();
-  
+
   const [search, setSearch] = useState('');
   const [playingId, setPlayingId] = useState<string | null>(null);
 
@@ -314,10 +324,10 @@ export default function App() {
   const handleDownloadPdf = (songId: string) => {
     const songObj = songs.find(s => s.id === songId);
     if (songObj) handleTelemetry("📂 Descărcare Partitură", songObj.title, "PDF");
-    
+
     const a = document.createElement('a');
     a.href = assetUrl(`pdfs/${songId}/partitura.pdf`);
-    a.download = `${songId}.pdf`;
+    a.download = songObj ? `${songObj.title}.pdf` : `${songId}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -326,7 +336,7 @@ export default function App() {
   useEffect(() => {
     if (pdfModalId) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
-    
+
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setPdfModalId(null);
     };
@@ -343,9 +353,9 @@ export default function App() {
         <div className="max-w-[640px] mx-auto px-4 py-3 sm:py-4">
           <div className="flex flex-row items-center justify-between gap-3 mb-2">
             <div className="flex items-center gap-3">
-              <img 
-                src={logo} 
-                alt="Logo" 
+              <img
+                src={logo}
+                alt="Logo"
                 className="w-10 h-10 sm:w-12 sm:h-12 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               />
@@ -360,13 +370,13 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-3 sm:gap-4">
-              <button 
-                onClick={toggleTheme} 
+              <button
+                onClick={toggleTheme}
                 className="p-1 text-[var(--muted)] hover:text-[var(--text)] transition-colors bg-[var(--track)] rounded-full"
               >
                 {theme === 'dark' ? <Sun size={16} className="m-1" /> : <Moon size={16} className="m-1" />}
               </button>
-              
+
               <div className="flex items-center gap-2 sm:gap-3 text-sm">
                 {(['ro', 'en', 'it'] as AppLang[]).map(l => (
                   <button
@@ -417,10 +427,10 @@ export default function App() {
 
       {/* FOOTER SIGNATURE */}
       <footer className="mt-8 sm:mt-12 pb-6 text-center">
-        <a 
-          href="https://corneluu.github.io/corneluu/" 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href="https://corneluu.github.io/corneluu/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-block text-[10px] text-[var(--muted)] hover:text-[var(--text)] uppercase tracking-[0.1em] transition-all opacity-60 hover:opacity-100 font-medium"
         >
           Built by Cornel
@@ -438,20 +448,20 @@ export default function App() {
                 <button onClick={() => setPdfZoom(z => Math.max(0.5, z - 0.2))} className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" title={t('zoomOut')}><ZoomOut size={18} /></button>
                 <button onClick={() => setPdfZoom(z => Math.min(3, z + 0.2))} className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" title={t('zoomIn')}><ZoomIn size={18} /></button>
                 <div className="sm:hidden flex items-center">
-                   <button 
-                     onClick={() => {
-                       handleShare(pdfModalId);
-                       const s = songs.find(x => x.id === pdfModalId);
-                       if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
-                     }} 
-                     className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" 
-                     title={t('share')}
-                   >
-                     <Share2 size={18} />
-                   </button>
-                  <button 
-                    onClick={() => handleDownloadPdf(pdfModalId)} 
-                    className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" 
+                  <button
+                    onClick={() => {
+                      handleShare(pdfModalId);
+                      const s = songs.find(x => x.id === pdfModalId);
+                      if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
+                    }}
+                    className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
+                    title={t('share')}
+                  >
+                    <Share2 size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDownloadPdf(pdfModalId)}
+                    className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
                     title={t('download')}
                   >
                     <Download size={18} />
@@ -463,39 +473,38 @@ export default function App() {
             </div>
             <div className="flex-1 overflow-auto bg-[var(--track)] relative">
               <div style={{ transform: `scale(${pdfZoom})`, transformOrigin: 'top center', transition: 'transform 0.2s', width: '100%', minHeight: '100%' }}>
-                 <iframe src={`${assetUrl(`pdfs/${pdfModalId}/partitura.pdf`)}#toolbar=0`} className="w-full h-full min-h-[90vh] border-none block bg-white pointer-events-auto" />
+                <iframe src={`${assetUrl(`pdfs/${pdfModalId}/partitura.pdf`)}#toolbar=0`} className="w-full h-full min-h-[90vh] border-none block bg-white pointer-events-auto" />
               </div>
             </div>
             <div className="hidden sm:flex p-4 bg-[var(--bg)] border-t border-[var(--track)] justify-center gap-3">
-               <button 
-                  onClick={() => {
-                    handleShare(pdfModalId);
-                    const s = songs.find(x => x.id === pdfModalId);
-                    if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
-                  }}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[var(--card)] text-[var(--text)] border border-[var(--track)] hover:border-[var(--muted)] font-semibold rounded-full text-[14px] transition-all shadow-sm"
-               >
-                 <Share2 size={16} />
-                 {t('share')}
-               </button>
-               <button 
-                  onClick={() => handleDownloadPdf(pdfModalId)}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
-               >
-                 <Download size={16} />
-                 {t('download')}
-               </button>
+              <button
+                onClick={() => {
+                  handleShare(pdfModalId);
+                  const s = songs.find(x => x.id === pdfModalId);
+                  if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
+                }}
+                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--card)] text-[var(--text)] border border-[var(--track)] hover:border-[var(--muted)] font-semibold rounded-full text-[14px] transition-all shadow-sm"
+              >
+                <Share2 size={16} />
+                {t('share')}
+              </button>
+              <button
+                onClick={() => handleDownloadPdf(pdfModalId)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
+              >
+                <Download size={16} />
+                {t('download')}
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* BACK TO TOP BUTTON */}
-      <button 
+      <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[var(--text)] text-[var(--bg)] p-3.5 rounded-full shadow-lg hover:scale-110 transition-all duration-300 ${
-          showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
-        }`}
+        className={`fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[var(--text)] text-[var(--bg)] p-3.5 rounded-full shadow-lg hover:scale-110 transition-all duration-300 ${showBackToTop ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+          }`}
         title={t('backToTop')}
         aria-label={t('backToTop')}
       >
@@ -517,7 +526,7 @@ export default function App() {
               <p className="text-[14px] text-[var(--muted)] mb-6 leading-relaxed">
                 {t('offlineDesc')}
               </p>
-              <button 
+              <button
                 onClick={() => setShowNetworkModal(false)}
                 className="w-full py-3 rounded-xl bg-[var(--text)] hover:opacity-90 text-[var(--bg)] font-bold text-[15px] transition-all shadow-md active:scale-[0.98]"
               >
