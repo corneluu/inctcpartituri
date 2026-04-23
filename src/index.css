@@ -26,6 +26,10 @@
   --highlight: #1D4ED8; /* Blue-700 - Significantly lighter and more vibrant royal blue for dark mode */
 }
 
+.dark img[alt="Logo"] {
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+}
+
 html {
   scroll-behavior: smooth;
 }

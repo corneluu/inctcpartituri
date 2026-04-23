@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Play, Pause, Download, Share2, FileText, X, ZoomIn, ZoomOut, Moon, Sun, AlertCircle, ChevronUp } from 'lucide-react';
 import { songs } from './songs';
 import type { Song, Voice } from './songs';
+import logo from './assets/logo.png';
 import { useLang, type AppLang } from './i18n';
 import { useDarkMode } from './useDarkMode';
 
@@ -339,13 +340,21 @@ export default function App() {
       <header className="sticky top-0 z-40 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--track)] transition-colors shadow-sm">
         <div className="max-w-[640px] mx-auto px-4 py-3 sm:py-4">
           <div className="flex flex-row items-center justify-between gap-3 mb-2">
-            <div>
-              <h1 className="font-serif text-xl font-bold text-[var(--text)] leading-none mb-0.5">
-                Întâlnirea Corurilor
-              </h1>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] font-semibold">
-                {t('portalSubtitle')}
-              </p>
+            <div className="flex items-center gap-3">
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              />
+              <div>
+                <h1 className="font-serif text-xl font-bold text-[var(--text)] leading-none mb-0.5">
+                  Întâlnirea Corurilor
+                </h1>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] font-semibold">
+                  {t('portalSubtitle')}
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 sm:gap-4">
