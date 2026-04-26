@@ -24,6 +24,7 @@ export const i18n = {
     offlineDesc: "Aplicația necesită internet sau date mobile pentru a încărca resursele.",
     offlineConfirm: "Am înțeles",
     youtube: "YouTube",
+    all: "Toate",
   },
   en: {
     portalSubtitle: "OFFICIAL SCORES",
@@ -48,6 +49,7 @@ export const i18n = {
     offlineDesc: "The app requires internet or mobile data to load resources.",
     offlineConfirm: "Got it",
     youtube: "YouTube",
+    all: "All",
   },
   it: {
     portalSubtitle: "SPARTITI UFFICIALI",
@@ -72,6 +74,7 @@ export const i18n = {
     offlineDesc: "L'app richiede internet o dati mobili per caricare le risorse.",
     offlineConfirm: "Ho capito",
     youtube: "YouTube",
+    all: "Tutti",
   }
 } as const;
 

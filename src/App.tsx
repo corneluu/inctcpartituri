@@ -268,6 +268,7 @@ export default function App() {
   const { theme, toggleTheme } = useDarkMode();
 
   const [search, setSearch] = useState('');
+  const [selectedComposer, setSelectedComposer] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   const [pdfModalId, setPdfModalId] = useState<string | null>(null);
@@ -313,13 +314,20 @@ export default function App() {
     navigator.clipboard.writeText(url.toString());
   };
 
+  const uniqueComposers = useMemo(() => {
+    return Array.from(new Set(songs.map(s => s.composer))).filter(Boolean);
+  }, []);
+
   const filteredSongs = useMemo(() => {
     let list = songs;
+    if (selectedComposer) {
+      list = list.filter(s => s.composer === selectedComposer);
+    }
     if (search.trim()) {
       list = list.filter(s => isFuzzyMatch(search, `${s.title} ${s.composer}`));
     }
     return list;
-  }, [search]);
+  }, [search, selectedComposer]);
 
   const handleDownloadPdf = (songId: string) => {
     const songObj = songs.find(s => s.id === songId);
@@ -399,6 +407,24 @@ export default function App() {
               placeholder={t('searchPlaceholder')}
               className="w-full h-10 bg-[var(--card)] border border-[var(--track)] rounded-xl px-4 text-[15px] outline-none focus:border-[var(--accent)] text-[var(--text)] transition-all placeholder-[var(--muted)] shadow-sm"
             />
+          </div>
+
+          <div className="flex flex-wrap gap-2 mt-3 pb-1">
+            <button
+              onClick={() => setSelectedComposer(null)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!selectedComposer ? 'bg-[var(--text)] text-[var(--bg)] shadow-md' : 'bg-[var(--card)] text-[var(--text)] border border-[var(--track)] hover:border-[var(--muted)]'}`}
+            >
+              {t('all')}
+            </button>
+            {uniqueComposers.map(c => (
+              <button
+                key={c}
+                onClick={() => setSelectedComposer(c)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedComposer === c ? 'bg-[var(--text)] text-[var(--bg)] shadow-md' : 'bg-[var(--card)] text-[var(--text)] border border-[var(--track)] hover:border-[var(--muted)]'}`}
+              >
+                {c}
+              </button>
+            ))}
           </div>
         </div>
       </header>
