@@ -175,13 +175,28 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onOpenAudio, onSha
   // State for active voice tab
   const [activeVoice, setActiveVoice] = useState<Voice>(song.voices[0]);
 
-  const handleDownloadMp3 = (url: string, filename: string) => {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownloadMp3 = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch {
+      // Fallback: direct link
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   return (
@@ -343,16 +358,26 @@ export default function App() {
     return list;
   }, [search, selectedComposer]);
 
-  const handleDownloadPdf = (songId: string) => {
+  const handleDownloadPdf = async (songId: string) => {
     const songObj = songs.find(s => s.id === songId);
     if (songObj) handleTelemetry("📂 Descărcare Partitură", songObj.title, "PDF");
-
-    const a = document.createElement('a');
-    a.href = assetUrl(`pdfs/${songId}/partitura.pdf`);
-    a.download = songObj ? `${songObj.title}.pdf` : `${songId}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const url = assetUrl(`pdfs/${songId}/partitura.pdf`);
+    const filename = songObj ? `${songObj.title}.pdf` : `${songId}.pdf`;
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch {
+      // Fallback: open in new tab
+      window.open(url, '_blank');
+    }
   };
 
   useEffect(() => {
@@ -562,17 +587,27 @@ export default function App() {
                   className="w-full max-w-md shadow-lg rounded-full" 
                 />
             </div>
-            <div className="hidden sm:flex p-4 bg-[var(--bg)] border-t border-[var(--track)] justify-center gap-3">
+            <div className="flex p-4 bg-[var(--bg)] border-t border-[var(--track)] justify-center gap-3">
               <button
-                onClick={() => {
+                onClick={async () => {
                   const s = songs.find(x => x.id === audioModalId);
                   if (s && s.audioUrl) {
-                     const a = document.createElement('a');
-                     a.href = assetUrl(s.audioUrl);
-                     a.download = `${s.title} - Demo.${s.audioUrl.split('.').pop() || 'mpeg'}`;
-                     document.body.appendChild(a);
-                     a.click();
-                     document.body.removeChild(a);
+                    const url = assetUrl(s.audioUrl);
+                    const filename = `${s.title} - Demo.${s.audioUrl.split('.').pop() || 'mpeg'}`;
+                    try {
+                      const res = await fetch(url);
+                      const blob = await res.blob();
+                      const blobUrl = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = blobUrl;
+                      a.download = filename;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+                    } catch {
+                      window.open(url, '_blank');
+                    }
                   }
                 }}
                 className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
