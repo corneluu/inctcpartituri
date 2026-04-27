@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Play, Pause, Download, Share2, FileText, X, ZoomIn, ZoomOut, Moon, Sun, AlertCircle, ChevronUp } from 'lucide-react';
+import { Play, Pause, Download, Share2, FileText, X, ZoomIn, ZoomOut, Moon, Sun, AlertCircle, ChevronUp, Headphones } from 'lucide-react';
 import { songs } from './songs';
 import type { Song, Voice } from './songs';
 import logo from './assets/logo.png';
@@ -170,7 +170,7 @@ interface SongProps {
   onTelemetry: (action: string, songName: string, type: string) => void;
 }
 
-function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlighted, onTelemetry }: SongProps) {
+function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onOpenAudio, onShare, isHighlighted, onTelemetry }: SongProps & { onOpenAudio: (id: string) => void }) {
   const { t } = lang;
   // State for active voice tab
   const [activeVoice, setActiveVoice] = useState<Voice>(song.voices[0]);
@@ -227,6 +227,19 @@ function SongItem({ song, playingId, onPlay, lang, onOpenPdf, onShare, isHighlig
             {t('youtube')}
           </a>
         )}
+        {song.audioUrl && (
+          <button
+            onClick={() => {
+              onOpenAudio(song.id);
+              onTelemetry("▶️ Deschidere Modal Demo", song.title, "Audio Demo");
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-all border shadow-sm bg-[#1DB954] text-white border-[#1DB954] hover:bg-[#1AA34A]"
+            title="Audio Demo"
+          >
+            <Play size={16} fill="currentColor" />
+            Audio Demo
+          </button>
+        )}
       </div>
 
       <div className="px-2 w-full">
@@ -272,6 +285,7 @@ export default function App() {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   const [pdfModalId, setPdfModalId] = useState<string | null>(null);
+  const [audioModalId, setAudioModalId] = useState<string | null>(null);
   const [pdfZoom, setPdfZoom] = useState(1);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
@@ -342,18 +356,21 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (pdfModalId) document.body.style.overflow = 'hidden';
+    if (pdfModalId || audioModalId) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = '';
 
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPdfModalId(null);
+      if (e.key === 'Escape') {
+        setPdfModalId(null);
+        setAudioModalId(null);
+      }
     };
     document.addEventListener('keydown', onEsc);
     return () => {
       document.body.style.overflow = '';
       document.removeEventListener('keydown', onEsc);
     };
-  }, [pdfModalId]);
+  }, [pdfModalId, audioModalId]);
 
   return (
     <div className="min-h-screen bg-[var(--bg)] font-sans pb-20 transition-colors">
@@ -443,6 +460,7 @@ export default function App() {
               onPlay={setPlayingId}
               lang={{ t }}
               onOpenPdf={setPdfModalId}
+              onOpenAudio={setAudioModalId}
               onShare={handleShare}
               isHighlighted={highlightedId === song.id}
               onTelemetry={handleTelemetry}
@@ -516,6 +534,49 @@ export default function App() {
               </button>
               <button
                 onClick={() => handleDownloadPdf(pdfModalId)}
+                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
+              >
+                <Download size={16} />
+                {t('download')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {audioModalId && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-0 sm:p-4">
+          <div className="bg-[var(--bg)] sm:rounded-xl w-full sm:max-w-4xl h-full sm:h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-3 border-b border-[var(--track)] text-[var(--text)]">
+              <h3 className="font-semibold text-[15px] sm:text-base truncate px-1">
+                {songs.find(s => s.id === audioModalId)?.title} - Demo
+              </h3>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setAudioModalId(null)} className="p-2 text-[var(--muted)] hover:text-red-500 hover:bg-[var(--track)] rounded-full"><X size={20} /></button>
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center bg-[var(--track)] relative p-4">
+                <Headphones size={64} className="text-[var(--muted)] mb-8 opacity-50" />
+                <audio 
+                  controls 
+                  src={assetUrl(songs.find(s => s.id === audioModalId)?.audioUrl || '')} 
+                  autoPlay 
+                  className="w-full max-w-md shadow-lg rounded-full" 
+                />
+            </div>
+            <div className="hidden sm:flex p-4 bg-[var(--bg)] border-t border-[var(--track)] justify-center gap-3">
+              <button
+                onClick={() => {
+                  const s = songs.find(x => x.id === audioModalId);
+                  if (s && s.audioUrl) {
+                     const a = document.createElement('a');
+                     a.href = assetUrl(s.audioUrl);
+                     a.download = `${s.title} - Demo.${s.audioUrl.split('.').pop() || 'mpeg'}`;
+                     document.body.appendChild(a);
+                     a.click();
+                     document.body.removeChild(a);
+                  }
+                }}
                 className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
               >
                 <Download size={16} />
