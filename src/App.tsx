@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Play, Pause, Download, Share2, FileText, X, ZoomIn, ZoomOut, Moon, Sun, AlertCircle, ChevronUp, Headphones } from 'lucide-react';
+import { Play, Pause, Download, Share2, FileText, X, Moon, Sun, AlertCircle, ChevronUp, Headphones } from 'lucide-react';
 import { songs } from './songs';
 import type { Song, Voice } from './songs';
 import logo from './assets/logo.png';
@@ -286,7 +286,7 @@ export default function App() {
 
   const [pdfModalId, setPdfModalId] = useState<string | null>(null);
   const [audioModalId, setAudioModalId] = useState<string | null>(null);
-  const [pdfZoom, setPdfZoom] = useState(1);
+
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -356,8 +356,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (pdfModalId || audioModalId) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
+    if (pdfModalId || audioModalId) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
 
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -481,68 +486,61 @@ export default function App() {
         </a>
       </footer>
 
-      {pdfModalId && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-0 sm:p-4">
-          <div className="bg-[var(--bg)] sm:rounded-xl w-full sm:max-w-4xl h-full sm:h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-3 border-b border-[var(--track)] text-[var(--text)]">
-              <h3 className="font-semibold text-[15px] sm:text-base truncate px-1">
-                {songs.find(s => s.id === pdfModalId)?.title}
+      {pdfModalId && (() => {
+        const song = songs.find(s => s.id === pdfModalId);
+        const pdfSrc = assetUrl(`pdfs/${pdfModalId}/partitura.pdf`);
+        return (
+          <div className="fixed inset-0 z-50 bg-black flex flex-col">
+            {/* Header toolbar */}
+            <div className="flex-shrink-0 flex items-center justify-between px-3 py-2 bg-[var(--bg)] border-b border-[var(--track)] text-[var(--text)]">
+              <h3 className="font-semibold text-[14px] sm:text-base truncate px-1 max-w-[50%]">
+                {song?.title}
               </h3>
               <div className="flex items-center gap-1">
-                <button onClick={() => setPdfZoom(z => Math.max(0.5, z - 0.2))} className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" title={t('zoomOut')}><ZoomOut size={18} /></button>
-                <button onClick={() => setPdfZoom(z => Math.min(3, z + 0.2))} className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full" title={t('zoomIn')}><ZoomIn size={18} /></button>
-                <div className="sm:hidden flex items-center">
-                  <button
-                    onClick={() => {
-                      handleShare(pdfModalId);
-                      const s = songs.find(x => x.id === pdfModalId);
-                      if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
-                    }}
-                    className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
-                    title={t('share')}
+                <span className="hidden sm:inline text-[11px] text-[var(--muted)] mr-2 select-none">Ctrl + Scroll pentru zoom</span>
+                <div className="w-px h-5 bg-[var(--track)] mx-1" />
+                <button
+                  onClick={() => { handleShare(pdfModalId); const s = songs.find(x => x.id === pdfModalId); if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură"); }}
+                  className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
+                  title={t('share')}
+                ><Share2 size={18} /></button>
+                <button
+                  onClick={() => handleDownloadPdf(pdfModalId)}
+                  className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
+                  title={t('download')}
+                ><Download size={18} /></button>
+                <div className="w-px h-5 bg-[var(--track)] mx-1" />
+                <button onClick={() => setPdfModalId(null)} className="p-2 text-[var(--muted)] hover:text-red-500 hover:bg-[var(--track)] rounded-full"><X size={20} /></button>
+              </div>
+            </div>
+
+            {/* PDF viewer — full remaining height, scrollable when zoomed */}
+            <div className="flex-1 overflow-auto bg-gray-200 flex justify-center items-start">
+              <object
+                data={`${pdfSrc}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                type="application/pdf"
+                className="border-none block bg-white"
+                style={{ width: '100%', minHeight: '100vh', display: 'block' }}
+              >
+                {/* Fallback for mobile browsers that can't render PDFs inline */}
+                <div className="flex flex-col items-center justify-center py-16 px-6 text-center gap-4" style={{ minHeight: '60vh' }}>
+                  <FileText size={48} className="text-[var(--muted)]" />
+                  <p className="text-[var(--text)] font-semibold">Browserul tău nu poate afișa PDF-ul direct.</p>
+                  <a
+                    href={pdfSrc}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-6 py-3 bg-[var(--text)] text-[var(--bg)] font-semibold rounded-full text-[14px] shadow-md"
                   >
-                    <Share2 size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDownloadPdf(pdfModalId)}
-                    className="p-2 text-[var(--muted)] hover:bg-[var(--track)] rounded-full"
-                    title={t('download')}
-                  >
-                    <Download size={18} />
-                  </button>
+                    <Download size={16} />
+                    Deschide / Descarcă PDF
+                  </a>
                 </div>
-                <div className="w-px h-5 bg-[var(--track)] mx-0.5 sm:mx-1" />
-                <button onClick={() => { setPdfModalId(null); setPdfZoom(1); }} className="p-2 text-[var(--muted)] hover:text-red-500 hover:bg-[var(--track)] rounded-full"><X size={20} /></button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto bg-[var(--track)] relative">
-              <div style={{ transform: `scale(${pdfZoom})`, transformOrigin: 'top center', transition: 'transform 0.2s', width: '100%', minHeight: '100%' }}>
-                <iframe src={`${assetUrl(`pdfs/${pdfModalId}/partitura.pdf`)}#toolbar=0`} className="w-full h-full min-h-[90vh] border-none block bg-white pointer-events-auto" />
-              </div>
-            </div>
-            <div className="hidden sm:flex p-4 bg-[var(--bg)] border-t border-[var(--track)] justify-center gap-3">
-              <button
-                onClick={() => {
-                  handleShare(pdfModalId);
-                  const s = songs.find(x => x.id === pdfModalId);
-                  if (s) handleTelemetry("🔗 Distribuire", s.title, "Link Partitură");
-                }}
-                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--card)] text-[var(--text)] border border-[var(--track)] hover:border-[var(--muted)] font-semibold rounded-full text-[14px] transition-all shadow-sm"
-              >
-                <Share2 size={16} />
-                {t('share')}
-              </button>
-              <button
-                onClick={() => handleDownloadPdf(pdfModalId)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-[var(--text)] text-[var(--bg)] hover:opacity-90 font-semibold rounded-full text-[14px] transition-all shadow-md"
-              >
-                <Download size={16} />
-                {t('download')}
-              </button>
+              </object>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {audioModalId && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-0 sm:p-4">
