@@ -26,3 +26,4 @@ dist-ssr
 # Securitate și date mari
 .env
 .env.*
+!.env.example
