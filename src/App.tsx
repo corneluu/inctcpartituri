@@ -111,7 +111,7 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
   const ext = path.split('.').pop() ?? 'mp3';
 
   return (
-    <div className="flex flex-row items-center gap-3 w-full h-[36px] bg-[var(--bg)] border border-[var(--track)] rounded-full px-2 mt-4 shadow-sm">
+    <div className="flex flex-row items-center gap-4 w-full h-[52px] bg-[var(--bg)] border border-[var(--track)] rounded-full px-4 mt-4 shadow-sm">
       <audio
         ref={audioRef}
         src={fullUrl}
@@ -123,36 +123,36 @@ function AudioPlayer({ songId, voice, path, playingId, onPlay, onDownload, onSha
 
       <button
         onClick={togglePlay}
-        className="flex-shrink-0 flex items-center justify-center rounded-full bg-[var(--accent)] text-[#0a0f0c] dark:text-[#0a0f0c] w-[26px] h-[26px] shadow-sm hover:opacity-90 transition-opacity"
+        className="flex-shrink-0 flex items-center justify-center rounded-full bg-[var(--accent)] text-[#0a0f0c] dark:text-[#0a0f0c] w-[38px] h-[38px] shadow-sm hover:opacity-90 transition-opacity"
       >
-        {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} className="ml-[1px]" fill="currentColor" />}
+        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} className="ml-[1px]" fill="currentColor" />}
       </button>
 
-      <div className="flex-1 relative flex items-center h-5 cursor-pointer group" onClick={handleSeek}>
-        <div className="absolute inset-x-0 h-[4px] bg-[var(--track)] rounded-full overflow-hidden transition-all">
+      <div className="flex-1 relative flex items-center h-6 cursor-pointer group" onClick={handleSeek}>
+        <div className="absolute inset-x-0 h-[6px] group-hover:h-[8px] bg-[var(--track)] rounded-full overflow-hidden transition-all">
           <div className="h-full bg-[var(--accent)] transition-all ease-linear" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      <div className="tabular-nums text-[var(--muted)] text-right flex-shrink-0 tracking-tight whitespace-nowrap text-[12px] font-medium w-[72px]">
+      <div className="tabular-nums text-[var(--muted)] text-right flex-shrink-0 tracking-tight whitespace-nowrap text-[13px] font-semibold w-[80px]">
         <span>{formatTime(currentTime)}</span>
         <span> / {formatTime(duration)}</span>
       </div>
 
-      <div className="flex flex-row items-center gap-1.5 sm:gap-2 flex-shrink-0 ml-1 mr-1">
+      <div className="flex flex-row items-center gap-2 sm:gap-3 flex-shrink-0 ml-1 mr-1">
         <button
           onClick={() => {
             onDownload(fullUrl, `${songId}-${voice}.${ext}`);
             onTelemetry("💾 Descărcare Audio", `${ext.toUpperCase()} - ${voice}`);
           }}
-          className="flex items-center justify-center sm:px-2.5 sm:py-1 rounded max-sm:p-1 max-sm:text-[var(--muted)] max-sm:hover:text-[var(--text)] sm:bg-[var(--track)] sm:text-[var(--text)] sm:hover:bg-[var(--text)] sm:hover:text-[var(--bg)] transition-all font-medium"
+          className="flex items-center justify-center sm:px-3 sm:py-1.5 rounded max-sm:p-2 max-sm:text-[var(--muted)] max-sm:hover:text-[var(--text)] sm:bg-[var(--track)] sm:text-[var(--text)] sm:hover:bg-[var(--text)] sm:hover:text-[var(--bg)] transition-all font-semibold"
           title={t('download')}
         >
-          <Download size={14} className="sm:mr-1.5" />
-          <span className="hidden sm:inline text-[11px] uppercase tracking-wide">{t('download')}</span>
+          <Download size={16} className="sm:mr-1.5" />
+          <span className="hidden sm:inline text-[11px] uppercase tracking-wider">{t('download')}</span>
         </button>
-        <button onClick={() => { onShare(songId, voice); onTelemetry("🔗 Distribuire", `Link Audio (${voice})`); }} className="p-1.5 sm:p-2 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--track)] rounded-full transition-all">
-          <Share2 size={14} />
+        <button onClick={() => { onShare(songId, voice); onTelemetry("🔗 Distribuire", `Link Audio (${voice})`); }} className="p-2.5 sm:p-3 text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--track)] rounded-full transition-all">
+          <Share2 size={18} />
         </button>
       </div>
     </div>
