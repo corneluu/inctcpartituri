@@ -60,3 +60,44 @@ button { cursor: pointer; outline: none; }
   right: 0;
   cursor: pointer;
 }
+
+/* ─── TOAST NOTIFICATION ─────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 24px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  animation: toast-slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  border: 1px solid var(--track);
+}
+
+.toast.hiding {
+  animation: toast-slide-down 0.3s ease-in forwards;
+}
+
+@keyframes toast-slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-slide-down {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(10px) scale(0.95); }
+}
+

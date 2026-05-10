@@ -308,6 +308,9 @@ export default function App() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [isToastHiding, setIsToastHiding] = useState(false);
+  const lastToastTime = useRef<number>(0);
 
   const handleTelemetry = (action: string, songName: string, typeStr: string) => {
     sendDiscordTelemetry(action, songName, typeStr);
@@ -347,6 +350,22 @@ export default function App() {
     url.searchParams.set('song', songId);
     if (voice) url.searchParams.set('voice', voice);
     navigator.clipboard.writeText(url.toString());
+
+    // 2-second cooldown for the notification
+    const now = Date.now();
+    if (now - lastToastTime.current >= 2000) {
+      lastToastTime.current = now;
+      setShowToast(true);
+      setIsToastHiding(false);
+
+      setTimeout(() => {
+        setIsToastHiding(true);
+        setTimeout(() => {
+          setShowToast(false);
+          setIsToastHiding(false);
+        }, 300);
+      }, 2000);
+    }
   };
 
   const uniqueComposers = useMemo(() => {
@@ -421,9 +440,13 @@ export default function App() {
             isScrolled ? 'h-0 opacity-0 overflow-hidden mb-0' : 'h-auto'
           }`}>
             <button
-              onClick={() => setShowHistoryModal(true)}
+              onClick={() => {
+                setShowHistoryModal(true);
+                handleTelemetry("📜 Deschidere Istoric", "General", "Update Notice");
+              }}
               className="text-[9px] sm:text-[10px] text-[var(--muted)] hover:text-[var(--text)] transition-all bg-[var(--track)]/40 hover:bg-[var(--track)] px-2.5 py-1 rounded-full font-medium uppercase tracking-wider"
             >
+
               {t('lastUpdate')} <span className="font-bold">{updateHistory.lastUpdate}</span> · <span className="underline decoration-dotted underline-offset-2">{t('viewChanges')}</span>
             </button>
           </div>
@@ -785,6 +808,16 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* TOAST NOTIFICATION */}
+      {showToast && (
+        <div className="toast-container">
+          <div className={`toast ${isToastHiding ? 'hiding' : ''}`}>
+            <AlertCircle size={16} className="text-[var(--accent)]" />
+            {t('copied')}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
