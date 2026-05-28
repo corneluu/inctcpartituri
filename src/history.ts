@@ -12,8 +12,14 @@ export interface UpdateHistory {
 }
 
 export const updateHistory: UpdateHistory = {
-  lastUpdate: '9 mai 2026',
+  lastUpdate: '29 mai 2026',
   pdfs: [
+    { 
+      name: 'Ne-aduni pe toți cu iubire', 
+      url: 'pdfs/cantec-16/partitura.pdf', 
+      date: '29 mai 2026', 
+      change: 'Partitură actualizată (s-a adăugat o măsură la finalul strofei)' 
+    },
     { 
       name: 'Eu te iubesc, Doamne', 
       url: 'pdfs/cantec-13/partitura.pdf', 
@@ -22,6 +28,12 @@ export const updateHistory: UpdateHistory = {
     }
   ],
   audio: [
+    { 
+      name: 'Pacem in terris (Bas)', 
+      url: 'audio/cantec-11/bas.mp3', 
+      date: '29 mai 2026', 
+      change: 'Audio actualizat' 
+    },
     { 
       name: 'La pace verrà (Alto)', 
       url: 'audio/cantec-9/alto.mp3', 
